@@ -35,8 +35,8 @@ private:
 
     bool m_isInitialized;
 
-	static const int c_motorCountTotal = 14;
-	static const int c_usedMotors[c_motorCountUsed];
+    static const int c_motorCountTotal = 14;
+    static const int c_usedMotors[c_motorCountUsed];
 };
 
 #endif /* MOTORCOMMAND_HPP_ */

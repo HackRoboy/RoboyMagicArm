@@ -8,7 +8,7 @@
 int main ()
 {
     ROS_INFO("Magic arm node started");
-	MotorCommand motorCommand(std::string("magic_arm"));
+    MotorCommand motorCommand(std::string("magic_arm"));
     ROS_INFO("Magic arm node initialized");
 
     ROS_INFO("M1 (8)\tM2 (10)\tM3 (5)\tM4 (3)\tM5 (12)\tM6 (11)\n\t\t\tUP:\tA\tS\tD\tF\tG\tH\n\t\t\tDOWN:\tZ\tX\tC\tV\tB\tN\n");
@@ -106,15 +106,15 @@ int main ()
                 s = pow(base,9);
                 break;
             default:
-            	continue;
+                continue;
         }
 
         std::stringstream motorSetPoints;
         motorSetPoints << "motorAngle[1~6] = [";
         for (int i = 0; i < 6; ++i)
         {
-        	motorSetPoints << ' ' << motorAngle[i] ;
-        	motorCommand.setMotor(i, motorAngle[i]);
+            motorSetPoints << ' ' << motorAngle[i] ;
+            motorCommand.setMotor(i, motorAngle[i]);
         }
         motorSetPoints << "]\n";
 
