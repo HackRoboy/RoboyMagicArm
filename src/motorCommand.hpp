@@ -8,25 +8,25 @@ class MotorCommand
 {
 
 public:
-	MotorCommand(std::string nodeName);
-	virtual ~MotorCommand();
+    MotorCommand(std::string nodeName);
+    virtual ~MotorCommand();
 
-	//// Set current set point of given motorId
-	void setMotor(int motorId, int motorSetPoint);
+    //// Set current set point of given motorId
+    void setMotor(int motorId, int motorSetPoint);
 
-	//// Returns current set point of given motorId
-	int getMotor(int motorId);
+    //// Returns current set point of given motorId
+    int getMotor(int motorId);
 
-	//// Publishes one set point message
-	void publishMotorCmd();
+    //// Publishes one set point message
+    void publishMotorCmd();
 
-	static const int c_motorCountUsed = 6;
+    static const int c_motorCountUsed = 6;
 
 private:
-	//// Initializes ROS node and memory
-	void init(std::string nodeName);
+    //// Initializes ROS node and memory
+    void init(std::string nodeName);
 
-	int m_motorSetPoints[c_motorCountUsed]; //> Actual set points
+    int m_motorSetPoints[c_motorCountUsed]; //> Actual set points
 
     ros::NodeHandlePtr m_nodeHandle; //> Handle for ROS node
     ros::Publisher m_motorCommand; //> Motor Command Publisher
