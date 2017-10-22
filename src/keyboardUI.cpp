@@ -5,73 +5,121 @@
 #include "ros/ros.h"
 #include <sstream>
 
+static const int c_usedMotorCount = 6;
+static const int c_scalePos[c_usedMotorCount] = {-2000, 2000, 2000, -2000, 2000, 2000};
+static const int c_initialForce[c_usedMotorCount] = {0, 320, 250, -290, 60, -20};
+
+
+
+
 int main ()
 {
     ROS_INFO("Magic arm node started");
     MotorCommand motorCommand(std::string("magic_arm"));
     ROS_INFO("Magic arm node initialized");
 
-    ROS_INFO("M1 (8)\tM2 (10)\tM3 (5)\tM4 (3)\tM5 (12)\tM6 (11)\n\t\t\tUP:\tA\tS\tD\tF\tG\tH\n\t\t\tDOWN:\tZ\tX\tC\tV\tB\tN\n");
-
     int c; //user keyboard input
-    int motorAngle[6] = { 0 };  //int/float?!
-    int s, base; //"scale" = base ^ pow
-    s = 1;
-    base = 2;
+    int s = 5;
+	ros::Rate secondSleep(1);
+	ros::Rate thirdSecondSleep(0.3);
 
+	unsigned int countExports = 1;
+
+
+	motorCommand.setControlMode(3); // dis
+	secondSleep.sleep();
+    for (int i = 0; i < 6; ++i)
+    {
+        motorCommand.setMotor(i, c_initialForce[i]);
+    }
+    motorCommand.publishMotorCmd();
+	secondSleep.sleep();
+    ROS_INFO("Magic arm moves to initial force controlled position");
+
+    for(int count = 0; count < 10; ++count)
+    {
+    	secondSleep.sleep();
+    }
+
+	motorCommand.processMotorStatus();
+
+	motorCommand.setControlMode(1); // dis
+	thirdSecondSleep.sleep();
+	motorCommand.mapMeasPosToDesiredPos();
+    motorCommand.publishMotorCmd();
+    ROS_INFO("Magic arm switched to position control");
+    ROS_INFO("M1 (8)\tM2 (10)\tM3 (5)\tM4 (3)\tM5 (12)\tM6 (11)\n\t\t\tUP:\tA\tS\tD\tF\tG\tH\n\t\t\tDOWN:\tZ\tX\tC\tV\tB\tN\n");
     do
     {
+
+    	motorCommand.processMotorStatus();
+
+
         c = getchar();   //need "Enter" to cont.
+        int direction = 0;
+        int motor = 0;
         switch(c)
         {
             //---Controlling Motor1~6---
             case 'A':
             case 'a':
-                motorAngle[0] = motorAngle[0] + s;
+            	motor = 0;
+            	direction = 1;
                 break;
             case 'Z':
             case 'z':
-                motorAngle[0] = motorAngle[0] - s;
+            	motor = 0;
+            	direction = -1;
                 break;
             case 'S':
             case 's':
-                motorAngle[1] = motorAngle[1] + s;
+            	motor = 1;
+            	direction = 1;
                 break;
             case 'X':
             case 'x':
-                motorAngle[1] = motorAngle[1] - s;
+            	motor = 1;
+            	direction = -1;
                 break;
             case 'D':
             case 'd':
-                motorAngle[2] = motorAngle[2] + s;
+            	motor = 2;
+            	direction = 1;
                 break;
             case 'C':
             case 'c':
-                motorAngle[2] = motorAngle[2] - s;
+            	motor = 2;
+            	direction = -1;
                 break;
             case 'F':
             case 'f':
-                motorAngle[3] = motorAngle[3] + s;
+            	motor = 3;
+            	direction = 1;
                 break;
             case 'V':
             case 'v':
-                motorAngle[3] = motorAngle[3] - s;
+            	motor = 3;
+            	direction = -1;
                 break;
             case 'G':
             case 'g':
-                motorAngle[4] = motorAngle[4] + s;
+            	motor = 4;
+            	direction = 1;
                 break;
             case 'B':
             case 'b':
-                motorAngle[4] = motorAngle[4] - s;
+            	motor = 4;
+            	direction = -1;
                 break;
             case 'H':
             case 'h':
-                motorAngle[5] = motorAngle[5] + s;
+            	motor = 5;
+            	direction = 1;
                 break;
             case 'N':
             case 'n':
-                motorAngle[5] = motorAngle[5] - s;
+            	motor = 5;
+            	direction = -1;
                 break;
             
             //---For scaling----
@@ -79,49 +127,85 @@ int main ()
                 s = 1;
                 break;
             case '1':
-                s = pow(base,1);
+                s = 1;
                 break;
             case '2':
-                s = pow(base,2);
+                s = 2;
                 break;
             case '3':
-                s = pow(base,3);
+                s = 3;
                 break;
             case '4':
-                s = pow(base,4);
+                s = 4;
                 break;
             case '5':
-                s = pow(base,5);
+                s = 5;
                 break;
             case '6':
-                s = pow(base,6);
+                s = 6;
                 break;
             case '7':
-                s = pow(base,7);
+                s = 7;
                 break;
             case '8':
-                s = pow(base,8);
+                s = 8;
                 break;
             case '9':
-                s = pow(base,9);
+                s = 9;
                 break;
+            case 'i':
+            	motorCommand.setControlMode(1); // pos
+                continue;
+            case 'o':
+            	motorCommand.setControlMode(2); // vel
+                continue;
+            case 'p':
+            	motorCommand.setControlMode(3); // dis
+                continue;
+            case 'R':
+            case 'r':
+            	motorCommand.saveCurrentPosition();
+            	continue;
+            case 'T':
+            case 't':
+            	motorCommand.deleteLastEntry();
+            	continue;
+            case 'E':
+            case 'e':
+            	motorCommand.exportLUT(countExports);
+            	countExports++;
+            	continue;
+            case 'l':
+            case 'L':
+            	motorCommand.resetToInitialPos();
+                motorCommand.publishMotorCmd();
+            	continue;
+            case '.':
+            	motorCommand.callEmergencyStop(true);
+            	continue;
+            case '-':
+            	motorCommand.callEmergencyStop(false);
+            	continue;
             default:
                 continue;
         }
+
+        motorCommand.increaseMotor(motor, direction * c_scalePos[motor] * s);
 
         std::stringstream motorSetPoints;
         motorSetPoints << "motorAngle[1~6] = [";
         for (int i = 0; i < 6; ++i)
         {
-            motorSetPoints << ' ' << motorAngle[i] ;
-            motorCommand.setMotor(i, motorAngle[i]);
+            motorSetPoints << ' ' << motorCommand.getMotor(i);
         }
-        motorSetPoints << "]\n";
+        motorSetPoints << "]";
+        motorSetPoints << " Scaling factor: " << s;
 
         motorCommand.publishMotorCmd();
 
         ROS_INFO("%s", motorSetPoints.str().c_str());
 
+        ROS_INFO("M1 (8)\tM2 (10)\tM3 (5)\tM4 (3)\tM5 (12)\tM6 (11)\n\t\t\tUP:\tA\tS\tD\tF\tG\tH\n\t\t\tDOWN:\tZ\tX\tC\tV\tB\tN\n");
 
     }while ((c!='q') && (c!='Q'));
 
