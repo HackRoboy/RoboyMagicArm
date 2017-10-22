@@ -7,7 +7,7 @@
 
 static const int c_usedMotorCount = 6;
 static const int c_scalePos[c_usedMotorCount] = {-2000, 2000, 2000, -2000, 2000, 2000};
-static const int c_initialForce[c_usedMotorCount] = {0, 320, 250, -290, 60, -20};
+static const int c_initialForce[c_usedMotorCount] = {0, 320, 250, -290, 0, 100};
 
 
 
@@ -19,7 +19,7 @@ int main ()
     ROS_INFO("Magic arm node initialized");
 
     int c; //user keyboard input
-    int s = 5;
+    int s = 1;
 	ros::Rate secondSleep(1);
 	ros::Rate thirdSecondSleep(0.3);
 
@@ -27,19 +27,19 @@ int main ()
 
 
 	motorCommand.setControlMode(3); // dis
-	secondSleep.sleep();
     for (int i = 0; i < 6; ++i)
-    {
+        motorCommand.setMotor(i, 0);
+    motorCommand.publishMotorCmd();
+	for(int count = 0; count < 5; ++count)
+		secondSleep.sleep();
+    for (int i = 0; i < 6; ++i)
         motorCommand.setMotor(i, c_initialForce[i]);
-    }
     motorCommand.publishMotorCmd();
 	secondSleep.sleep();
     ROS_INFO("Magic arm moves to initial force controlled position");
 
     for(int count = 0; count < 10; ++count)
-    {
     	secondSleep.sleep();
-    }
 
 	motorCommand.processMotorStatus();
 

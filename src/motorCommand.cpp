@@ -7,7 +7,7 @@
 #include <iostream>
 #include <fstream>
 
-const int MotorCommand::c_usedMotors[c_motorCountUsed] = {8, 10, 5, 3, 11, 12};
+const int MotorCommand::c_usedMotors[c_motorCountUsed] = {8, 10, 5, 3, 12, 11};
 
 MotorCommand::MotorCommand(std::string nodeName)
 : m_isInitialized(false),
